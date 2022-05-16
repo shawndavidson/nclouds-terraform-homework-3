@@ -1,5 +1,5 @@
 # nclouds-terraform-homework1-1
-Terraform Homework 1 for nClouds Academy 
+Terraform Homework 2 for nClouds Academy 
 
 Create a Terraform template that deploys:
 - VPC
@@ -7,7 +7,9 @@ Create a Terraform template that deploys:
 - 3 Public Subnets
 - 3 Private Subnets
 - 2 RouteTables (1 Public, 1 Private)
-- NAT Gateway
+- 1 NAT Gateway
+- 1 Auto Scaling Group 
+- 1 Launch Configuration
 
 Deliverables:
 
