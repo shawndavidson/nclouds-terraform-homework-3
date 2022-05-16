@@ -1,4 +1,4 @@
-# nclouds-terraform-homework1-1
+# nclouds-terraform-homework-2
 Terraform Homework 2 for nClouds Academy 
 
 Create a Terraform template that deploys:
