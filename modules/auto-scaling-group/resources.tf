@@ -2,21 +2,6 @@
 # The purpose of this module is to declare the resources need to establish an AWS 
 # Auto-Scaling Group
 
-variable "launch_configuration" {
-    default = []
-}
-
-variable "owner" {
-    default = []
-}
-
-variable "project" {
-    default = []
-}
-
-variable "subnet_ids" {
-    default = []
-}
 
 resource "aws_autoscaling_group" "auto_scaling_group" {
   name                 = "${var.project}-auto-scaling-group"
