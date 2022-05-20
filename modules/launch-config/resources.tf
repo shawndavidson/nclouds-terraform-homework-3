@@ -1,17 +1,6 @@
 # Module: launch_config
 # This purpose of this module is to declare an AWS launch configuration for use by an Auto-Scaling Group
 # It uses the latest Amazon Linux 2 HVM AMI.
-variable "owner" {
-    default = []
-}
-
-variable "project" {
-    default = []
-}
-
-output "name" {
-  value = aws_launch_configuration.launch_config.name
-}
 
 # See https://www.hashicorp.com/blog/hashicorp-terraform-supports-amazon-linux-2
 data "aws_ami" "amazon-linux-2" {
