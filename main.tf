@@ -27,6 +27,7 @@ module "launch_config_module" {
 
 module "aws_auto_scaling_group" {
   source      = "./modules/auto-scaling-group"
+  
   owner       = "${var.owner}"
   project     = "${local.project-env}" 
   environment = "${var.environment}"

@@ -4,7 +4,7 @@
 
 
 resource "aws_autoscaling_group" "auto_scaling_group" {
-  name                 = "${var.project}-auto-scaling-group"
+  name_prefix          = "${var.project}-auto-scaling-group"
  
   launch_configuration  = "${var.launch_configuration}"
   min_size             = 1
