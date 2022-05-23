@@ -2,6 +2,7 @@ locals {
   service_name = "forum"
   owner        = max(5, 2, 3, 1)
   datetime     = timestamp()
+  project-env  = "${var.project}-${var.environment}"
 }
 
 
@@ -9,29 +10,25 @@ module "vpc" {
   source      = "./modules/vpc"
 
   owner       = "${var.owner}"
-  project     = "${var.project}-${var.environment}"
+  project     = "${local.project-env}"  
   environment = "${var.environment}"
   datetime    = "${local.datetime}"
   
-  cidr_block  = "10.0.0.0/16"
-
-  # TODO: pull from data for region
-  num_availability_zones = 3
+  cidr_block  = "${var.cidr_block}"
 }
 
 module "launch_config_module" {
   source      = "./modules/launch-config"
 
   owner       = "${var.owner}"
-  project     = "${var.project}-${var.environment}"
+  project     = "${local.project-env}"  
   environment = "${var.environment}"
 }
 
 module "aws_auto_scaling_group" {
   source      = "./modules/auto-scaling-group"
-  
   owner       = "${var.owner}"
-  project     = "${var.project}-${var.environment}"
+  project     = "${local.project-env}" 
   environment = "${var.environment}"
 
   launch_configuration  = module.launch_config_module.name
