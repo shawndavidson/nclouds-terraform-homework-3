@@ -1,6 +1,11 @@
 # Module: aws_vpc
 # The purpose of this module is to represent an AWS VPC
 
+// Source Availability Zone data for the region configured by our provider
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 resource "aws_vpc" "main" {
   cidr_block    = var.cidr_block
 
@@ -25,9 +30,10 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_subnet" "public" {
-  count      = var.num_availability_zones
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "${cidrsubnet(var.cidr_block, 8, count.index)}"
+  count             = length(data.aws_availability_zones.available.names)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "${cidrsubnet(var.cidr_block, 8, count.index)}"
+  availability_zone = "${data.aws_availability_zones.available.names[count.index]}"
 
   tags = {
     Name        = "${var.project} public ${count.index}"
@@ -38,13 +44,14 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_subnet" "private" {
-  count      = var.num_availability_zones
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "${cidrsubnet(var.cidr_block, 8, count.index+var.num_availability_zones)}"
+  count       = length(data.aws_availability_zones.available.names)
+  vpc_id      = aws_vpc.main.id
+  cidr_block  = "${cidrsubnet(var.cidr_block, 8, count.index+length(data.aws_availability_zones.available.names))}"
+  availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    Name  = "${var.project} private ${count.index}"
-    Owner = var.owner
+    Name        = "${var.project} private ${count.index}"
+    Owner       = var.owner
     Environment = var.environment
     DateTime    = var.datetime
   }
@@ -90,8 +97,8 @@ resource "aws_route_table" "public_route_table" {
   }
 
   tags = {
-    Name  = "${var.project} public route table"
-    Owner = var.owner
+    Name        = "${var.project} public route table"
+    Owner       = var.owner
     Environment = var.environment
     DateTime    = var.datetime
   }
@@ -99,7 +106,7 @@ resource "aws_route_table" "public_route_table" {
 
 # Routing Table Associations for public subnets 
 resource "aws_route_table_association" "public_assoc" {
-  count          = var.num_availability_zones
+  count          = length(data.aws_availability_zones.available.names)
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public_route_table.id
 }
@@ -123,7 +130,7 @@ resource "aws_route_table" "private_route_table" {
 
 # Routing Table Associations for private subnets 
 resource "aws_route_table_association" "private_assoc" {
-  count          = var.num_availability_zones
+  count          = length(data.aws_availability_zones.available.names)
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private_route_table.id
 }
