@@ -10,7 +10,7 @@ Create a Terraform template that deploys:
 - 1 NAT Gateway
 - 1 Auto Scaling Group 
 - 1 Launch Configuration (uses latest Amazon Linux 2 AMI)
-* Where N = # of availability zones in the region
+* Where N = # of availability zones in the region (default is set to us-west-2)
 
 Deliverables:
 
