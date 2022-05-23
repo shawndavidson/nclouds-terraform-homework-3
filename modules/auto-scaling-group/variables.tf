@@ -10,6 +10,10 @@ variable "project" {
     default = []
 }
 
+variable "environment" {
+    default = []
+}
+
 variable "subnet_ids" {
     default = []
 }

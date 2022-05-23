@@ -2,81 +2,51 @@
 # The purpose of this module is to represent an AWS VPC
 
 resource "aws_vpc" "main" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block    = var.cidr_block
+
   tags = {
-    Name  = "${var.project}-vpc"
-    Owner = var.owner
+    Name        = "${var.project}-vpc"
+    Owner       = var.owner
+    Environment = var.environment
+    DateTime    = var.datetime
   }
 }
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
+
   tags = {
-    Name  = "${var.project}-igw"
-    Owner = var.owner
+    Name        = "${var.project}-igw"
+    Owner       = var.owner
+    Environment = var.environment
+    DateTime    = var.datetime
   }
-  depends_on = [aws_subnet.public1]
+  depends_on = [aws_subnet.public[0]]
 }
 
-resource "aws_subnet" "public1" {
+resource "aws_subnet" "public" {
+  count      = var.num_availability_zones
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.1.0/24"
+  cidr_block = "${cidrsubnet(var.cidr_block, 8, count.index)}"
 
   tags = {
-    Name  = "${var.project} public 1"
-    Owner = var.owner
-  }
-}
-
-resource "aws_subnet" "public2" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.2.0/24"
-
-  tags = {
-    Name  = "${var.project} public 2"
-    Owner = var.owner
+    Name        = "${var.project} public ${count.index}"
+    Owner       = var.owner
+    Environment = var.environment
+    DateTime    = var.datetime
   }
 }
 
-# Added public subnet #3 
-resource "aws_subnet" "public3" {
+resource "aws_subnet" "private" {
+  count      = var.num_availability_zones
   vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.3.0/24"
+  cidr_block = "${cidrsubnet(var.cidr_block, 8, count.index+var.num_availability_zones)}"
 
   tags = {
-    Name  = "${var.project} public 3"
+    Name  = "${var.project} private ${count.index}"
     Owner = var.owner
-  }
-}
-
-resource "aws_subnet" "private1" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.4.0/24"
-
-  tags = {
-    Name  = "${var.project} private 1"
-    Owner = var.owner
-  }
-}
-
-resource "aws_subnet" "private2" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.5.0/24"
-
-  tags = {
-    Name  = "${var.project} private 2"
-    Owner = var.owner
-  }
-}
-
-# Added private subnet #3
-resource "aws_subnet" "private3" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = "10.0.6.0/24"
-
-  tags = {
-    Name  = "${var.project} private 3"
-    Owner = var.owner
+    Environment = var.environment
+    DateTime    = var.datetime
   }
 }
 
@@ -87,16 +57,22 @@ resource "aws_eip" "eip1" {
   tags = {
     Name  = "${var.project} eip 1"
     Owner = var.owner
+    Environment = var.environment
+    DateTime    = var.datetime
   }
 }
 
 resource "aws_nat_gateway" "natgw1" {
   allocation_id = aws_eip.eip1.id
-  subnet_id     = aws_subnet.public1.id
+
+  # Place the NAT Gateway in the first public subnet
+  subnet_id     = aws_subnet.public[0].id
 
   tags = {
     Name  = "${var.project} nat gateway 1"
     Owner = var.owner
+    Environment = var.environment
+    DateTime    = var.datetime
   }
 
   # To ensure proper ordering, it is recommended to add an explicit dependency
@@ -116,20 +92,15 @@ resource "aws_route_table" "public_route_table" {
   tags = {
     Name  = "${var.project} public route table"
     Owner = var.owner
+    Environment = var.environment
+    DateTime    = var.datetime
   }
 }
 
-# Routing Table Associations for public subnets 1-3
-resource "aws_route_table_association" "public_assoc_1" {
-  subnet_id      = aws_subnet.public1.id
-  route_table_id = aws_route_table.public_route_table.id
-}
-resource "aws_route_table_association" "public_assoc_2" {
-  subnet_id      = aws_subnet.public2.id
-  route_table_id = aws_route_table.public_route_table.id
-}
-resource "aws_route_table_association" "public_assoc_3" {
-  subnet_id      = aws_subnet.public3.id
+# Routing Table Associations for public subnets 
+resource "aws_route_table_association" "public_assoc" {
+  count          = var.num_availability_zones
+  subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public_route_table.id
 }
 
@@ -145,21 +116,15 @@ resource "aws_route_table" "private_route_table" {
   tags = {
     Name  = "${var.project} private route table"
     Owner = var.owner
-  }
+    Environment = var.environment
+    DateTime    = var.datetime
+ }
 }
 
-# Routing Table Associations for private subnets 1-3
-resource "aws_route_table_association" "private_assoc_1" {
-  subnet_id      = aws_subnet.private1.id
+# Routing Table Associations for private subnets 
+resource "aws_route_table_association" "private_assoc" {
+  count          = var.num_availability_zones
+  subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private_route_table.id
 }
 
-resource "aws_route_table_association" "private_assoc_2" {
-  subnet_id      = aws_subnet.private2.id
-  route_table_id = aws_route_table.private_route_table.id
-}
-
-resource "aws_route_table_association" "private_assoc_3" {
-  subnet_id      = aws_subnet.private3.id
-  route_table_id = aws_route_table.private_route_table.id
-}

@@ -5,3 +5,7 @@ variable "owner" {
 variable "project" {
     default = []
 }
+
+variable "environment" {
+    default = []
+}

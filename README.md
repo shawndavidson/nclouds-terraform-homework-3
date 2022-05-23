@@ -27,3 +27,6 @@ To get started:
 
 2) Deploy to AWS cloud profile named "default" 
 > terraform apply
+
+3) Terraform will prompt you to enter the name of your environment. Typically, this would be something like
+   dev, stage, or prod to represent typical development, staging, and production environments. 
