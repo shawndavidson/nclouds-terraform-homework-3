@@ -1,15 +1,16 @@
-# nclouds-terraform-homework-2
-Terraform Homework 2 for nClouds Academy 
+# nclouds-terraform-homework-3
+Terraform Homework 3 for nClouds Academy 
 
 Create a Terraform template that deploys:
 - VPC
 - Internet Gateway
-- 3 Public Subnets
-- 3 Private Subnets
+- N Public Subnets (dynamically generated)
+- N Private Subnets (dynamically generated)
 - 2 RouteTables (1 Public, 1 Private)
 - 1 NAT Gateway
 - 1 Auto Scaling Group 
-- 1 Launch Configuration
+- 1 Launch Configuration (uses latest Amazon Linux 2 AMI)
+* Where N = # of availability zones in the region
 
 Deliverables:
 
